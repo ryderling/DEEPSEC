@@ -20,7 +20,7 @@ from Attacks.AttackMethods.attacks import Attack
 
 class RFGSMAttack(Attack):
 
-    def __init__(self, model=None, epsilon=None, alpha=None):
+    def __init__(self, model=None, epsilon=None, alpha_ratio=None):
         """
 
         :param model:
@@ -31,7 +31,7 @@ class RFGSMAttack(Attack):
         self.model = model
 
         self.epsilon = epsilon
-        self.alpha = alpha
+        self.alpha_ratio = alpha_ratio
 
     def perturbation(self, samples, ys, device):
         """
@@ -45,10 +45,10 @@ class RFGSMAttack(Attack):
         copy_samples = np.copy(samples)
 
         # add randomized single-step attack
-        copy_samples = copy_samples + (self.alpha * self.epsilon * np.sign(np.random.randn(*copy_samples.shape)))
+        copy_samples = copy_samples + (self.alpha_ratio * self.epsilon * np.sign(np.random.randn(*copy_samples.shape)))
         copy_samples = np.clip(copy_samples, 0.0, 1.0).astype(np.float32)
 
-        eps = (1.0 - self.alpha) * self.epsilon
+        eps = (1.0 - self.alpha_ratio) * self.epsilon
         var_samples = tensor2variable(torch.from_numpy(copy_samples), device=device, requires_grad=True)
         var_ys = tensor2variable(torch.LongTensor(ys), device=device)
 

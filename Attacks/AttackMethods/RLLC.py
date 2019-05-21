@@ -19,7 +19,7 @@ from Attacks.AttackMethods.attacks import Attack
 
 class RLLCAttack(Attack):
 
-    def __init__(self, model=None, epsilon=None, alpha=None):
+    def __init__(self, model=None, epsilon=None, alpha_ratio=None):
         """
 
         :param model:
@@ -30,7 +30,7 @@ class RLLCAttack(Attack):
         self.model = model
 
         self.epsilon = epsilon
-        self.alpha = alpha
+        self.alpha_ratio = alpha_ratio
 
     def perturbation(self, samples, ys_target, device):
         """
@@ -42,13 +42,13 @@ class RLLCAttack(Attack):
         copy_samples = np.copy(samples)
 
         # randomization
-        copy_samples = np.clip(copy_samples + self.alpha * self.epsilon * np.sign(np.random.randn(*copy_samples.shape)), 0.0, 1.0).astype(
+        copy_samples = np.clip(copy_samples + self.alpha_ratio * self.epsilon * np.sign(np.random.randn(*copy_samples.shape)), 0.0, 1.0).astype(
             np.float32)
 
         var_samples = tensor2variable(torch.from_numpy(copy_samples), device=device, requires_grad=True)
         var_ys_target = tensor2variable(torch.from_numpy(ys_target), device)
 
-        eps = (1 - self.alpha) * self.epsilon
+        eps = (1 - self.alpha_ratio) * self.epsilon
 
         self.model.eval()
         preds = self.model(var_samples)

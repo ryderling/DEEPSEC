@@ -24,16 +24,15 @@ from Attacks.Generation import Generation
 class RFGSMGeneration(Generation):
 
     def __init__(self, dataset, attack_name, targeted, raw_model_location, clean_data_location, adv_examples_dir, device,
-                 attack_batch_size, eps, alpha):
+                 attack_batch_size, eps, alpha_ratio):
         super(RFGSMGeneration, self).__init__(dataset, attack_name, targeted, raw_model_location, clean_data_location, adv_examples_dir, device)
         self.attack_batch_size = attack_batch_size
 
         self.epsilon = eps
-        self.alpha = alpha
+        self.alpha_ratio = alpha_ratio
 
     def generate(self):
-        attacker = RFGSMAttack(model=self.raw_model, epsilon=self.epsilon, alpha=self.alpha)
-
+        attacker = RFGSMAttack(model=self.raw_model, epsilon=self.epsilon, alpha_ratio=self.alpha_ratio)
         adv_samples = attacker.batch_perturbation(xs=self.nature_samples, ys=self.labels_samples, batch_size=self.attack_batch_size,
                                                   device=self.device)
         # prediction for the adversarial examples
@@ -71,7 +70,7 @@ def main(args):
 
     rfgsm = RFGSMGeneration(dataset=args.dataset, attack_name=name, targeted=targeted, raw_model_location=args.modelDir,
                             clean_data_location=args.cleanDir, adv_examples_dir=args.adv_saver, device=device,
-                            eps=args.epsilon, attack_batch_size=args.attack_batch_size, alpha=args.alpha)
+                            eps=args.epsilon, attack_batch_size=args.attack_batch_size, alpha_ratio=args.alpha_ratio)
     rfgsm.generate()
 
 
@@ -89,7 +88,7 @@ if __name__ == '__main__':
 
     # arguments for the particular attack
     parser.add_argument('--epsilon', type=float, default=0.1, help='the epsilon value of RFGSM')
-    parser.add_argument('--alpha', type=float, default=0.5, help='the ratio of alpha related to epsilon in RFGSM ')
+    parser.add_argument('--alpha_ratio', type=float, default=0.5, help='the ratio of alpha related to epsilon in RFGSM')
     parser.add_argument('--attack_batch_size', type=int, default=100, help='the default batch size for adversarial example generation')
 
     arguments = parser.parse_args()
