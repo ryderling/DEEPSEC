@@ -10,6 +10,7 @@
 import os
 import sys
 
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -64,4 +65,5 @@ class MNISTConvNet(BasicModule):
         out = self.dropout(out)
         out = F.relu(self.fc2(out))
         out = self.fc3(out)
+        out = out - torch.max(out, dim=1, keepdim=True)[0]
         return out

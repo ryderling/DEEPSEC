@@ -8,7 +8,7 @@
 import math
 import os
 import sys
-
+import torch
 import torch.nn as nn
 
 sys.path.append('%s/../' % os.path.dirname(os.path.realpath(__file__)))
@@ -136,6 +136,7 @@ class ResNet_Cifar(BasicModule):
         x = x.view(x.size(0), -1)
         x = self.fc(x)
 
+        x = x - torch.max(x, dim=1, keepdim=True)[0]
         return x
 
 
